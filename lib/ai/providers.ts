@@ -3,6 +3,7 @@ import {
   extractReasoningMiddleware,
   wrapLanguageModel,
 } from 'ai';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { xai } from '@ai-sdk/xai';
 import {
   artifactModel,
@@ -11,6 +12,12 @@ import {
   titleModel,
 } from './models.test';
 import { isTestEnvironment } from '../constants';
+
+// LM Studio provider
+const lmstudio = createOpenAICompatible({
+  name: 'lmstudio',
+  baseURL: 'http://localhost:1234/v1',
+});
 
 export const myProvider = isTestEnvironment
   ? customProvider({
@@ -23,15 +30,9 @@ export const myProvider = isTestEnvironment
     })
   : customProvider({
       languageModels: {
-        'chat-model': xai('grok-2-vision-1212'),
-        'chat-model-reasoning': wrapLanguageModel({
-          model: xai('grok-3-mini-beta'),
-          middleware: extractReasoningMiddleware({ tagName: 'think' }),
-        }),
-        'title-model': xai('grok-2-1212'),
-        'artifact-model': xai('grok-2-1212'),
-      },
-      imageModels: {
-        'small-model': xai.imageModel('grok-2-image'),
+        'chat-model': lmstudio('openai/gpt-oss-20b'),
+        'chat-model-reasoning': lmstudio('openai/gpt-oss-20b'),
+        'title-model': lmstudio('openai/gpt-oss-20b'),
+        'artifact-model': lmstudio('openai/gpt-oss-20b'),
       },
     });
